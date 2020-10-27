@@ -8,5 +8,4 @@ function findSum(n) {
     return result
   }
   
- 
   console.log(`Sum of numbers from 1 to ${n} is ${findSum(n)}`)
