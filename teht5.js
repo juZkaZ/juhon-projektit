@@ -1,0 +1,1 @@
+console.log([...Array(100)].map((_,i)=>{i++;return(i%15?'':'FizzBuzz')||(i%5?'':'Buzz')||(i%3?'':'Fizz')||i;}).join('\n'));
