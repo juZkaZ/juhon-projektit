@@ -1,0 +1,16 @@
+I’m glad to help you :) Here’s a list of commands you can use!
+Accounts
+create_account -- > Opens dialog for creating an account.
+close_account -- > Opens a dialog for closing an account.
+modify_account -- > Opens a dialog for modifying an account.
+does_account_exist -- > Opens a dialog for checking if the account exists.
+log_in -- > Opens a dialog for logging in.
+logout -- > Opens a dialog for logging out.
+Funds
+withdraw_funds -- > Opens a dialog for withdrawing funds.
+deposit_funds -- > Opens a dialog for depositing funds.
+transfer_funds -- > Opens a dialog for transferring funds to another account.
+Requests
+request_funds -- > Opens a dialog for requesting another user for funds.
+funds_requests -- > Shows all the requests for the account funds.
+accept_fund_request -- > Opens a dialog for accepting a fund request.
