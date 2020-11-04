@@ -19,6 +19,51 @@ const createId = () => {
     return found ? createId() : id;
 }
 
+const getAccount = (output = "") => {
+    if (output) {
+        console.log(output);
+    }
+    const id = getIntInput();
+    const found = allUsers.find((user) => user.id === id);
+    return !found ? getAccount("Unfortunately an account with that ID does not exist.") : found;
+};
+
+//salasanan kysely
+
+const validatePassword = (accountRef) => {
+    const password = readline.question(">>");
+    
+    if (accountRef.password === password) {
+        console.log(`Correct password. We validated you as ${accountRef.name}.`);
+        return true;
+    }
+    console.log("Wrong password, try typing it again.");
+    return validatePassword();
+}
+
+const validateUser = () => {
+    if (!loggedUser) {
+        console.log("What is your account ID?");
+        const accountRef = getAccount();
+        console.log("Account found! Insert your password.");
+        validatePassword(accountRef);
+        return (accountRef);
+    }
+
+    return (loggedUser);
+};
+//Kysyy käyttäjältä vahvistuksen ja validoi onko käyttäjän vastaus kyllä vai ei.
+const confirmation = () => {
+    console.log("Are you sure?");
+    const answer = readline.question(">>");
+
+    if (answer === "yes") return true;
+    if (answer === "no") return false;
+
+    console.log("Please type 'yes' or 'no'");
+    return confirmation();
+};
+
 export const createAccount = () => {
     console.log("Creating a new user account!");
     console.log("Can you please tell me your name?");
@@ -55,6 +100,29 @@ export const createAccount = () => {
 
     allUsers = allUsers.concat(account);
     console.log(allUsers);
+};
+
+export const withdrawFunds = () => {
+    console.log("Withdrawing cash!");
+    const accountRef = validateUser();
+
+    console.log(`How much money you want to withdraw?
+        (Current balance: ${accountRef.balance}€)`);
+    const getAmount = (output) => {
+        if (output) {
+            console.log (`Unfortunately you don't have the balance for that.
+                You have ${accountRef.balance}on your account.)`);
+        }
+        const amount = getIntInput();
+        return amount <= accountRef.balance ? amount : getAmount(true);
+    };
+    const mAmount = getAmount(false);
+
+    if (confirmation()) {
+        accountRef.balance -= mAmount;
+        console.log(`Withdrawing a cash sum of ${mAmount}€.
+        Your account balance is now ${accountRef.balance}€.`);
+    };
 };
 
 /*export const readUsersFromFile = () => {

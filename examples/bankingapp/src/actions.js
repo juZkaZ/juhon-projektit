@@ -1,5 +1,6 @@
 import {
     createAccount,
+    withdrawFunds,
 } from "./commands.js";
 
 
@@ -24,6 +25,7 @@ const help = (actionlist) => {
     });
 };
 
+
 const actions = [
     {
         command: "help",
@@ -40,10 +42,10 @@ const actions = [
     },
 
     {
-        command: "withdraw funds",
+        command: "withdraw_funds",
         description:"        Opens a dialog to withdraw your funds from us",
         action_type: actionTypes.account_actions,
-        //action: withdrawFunds,
+        action: withdrawFunds,
     },
 
 
