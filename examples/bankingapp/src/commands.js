@@ -64,6 +64,20 @@ const confirmation = () => {
     return confirmation();
 };
 
+export const depositFunds = () => {
+    console.log("Depositing funds!");
+    const accountRef = validateUser();
+
+    console.log(`How much money do you want to deposit? (Current balance is:${accountRef.balance}€.`);
+
+    const amount = getIntInput();
+
+    if (confirmation()) {
+        accountRef.balance += amount;
+        console.log(`Depositing ${amount}€. Account balance is now ${accountRef.balance}`);
+    }
+};
+
 export const createAccount = () => {
     console.log("Creating a new user account!");
     console.log("Can you please tell me your name?");
@@ -96,10 +110,10 @@ export const createAccount = () => {
         password: newPassword,
         id: newId,
         balance,
+        fundRequests: [],
     };
 
     allUsers = allUsers.concat(account);
-    console.log(allUsers);
 };
 
 export const withdrawFunds = () => {
@@ -125,8 +139,179 @@ export const withdrawFunds = () => {
     };
 };
 
-/*export const readUsersFromFile = () => {
-    try {
-        const data =
+export const transferFunds = () => {
+    console.log("Transfering funds");
+    const accountRef = validateUser();
+
+    console.log(`How much money do you want to transfer?
+                (Current balance: ${accountRef.balance} €.`);
+    
+    const getAmount = (output) => {
+        if (output) {
+            console.log(`Unfortunately you don't have the balance to do that.
+            You have ${accountRef.balance} on your account.`);
+        }
+        const amount = getIntInput();
+        return amount >= accountRef.balance ? getAmount (true) : amount;
     }
-};*/
+    const amount = getAmount(false);
+
+    console.log("Which account ID do you want to transfer these funds to?");
+
+    const targetAccountRef = getAccount();
+
+    if (confirmation()) {
+        accountRef.balance -= amount;
+        targetAccountRef.balance += amount;
+
+        console.log(`Sending ${amount} from account ID ${accountRef.id}
+                to account ID ${targetAccountRef.id}`);
+    }
+}
+export const doesAccountExist = () => {
+    console.log("Checking if the account exists!");
+    console.log("Enter the ID of an account whose existence you want to verify.");
+    const id = getIntInput();
+    const account = allUsers.find((user) => user.id === id);
+    if (account) {
+        console.log("This account exists.");
+    } else {
+        console.log("No such account exists.");
+    }
+}
+
+export const login = () => {
+    if(!loggedUser) {
+        console.log("Logging in");
+        loggedUser = validateUser();
+        console.log("You are now logged in!");
+    } else {
+        console.log("You are already logged in!");
+    }
+};
+
+export const logout = () => {
+    if (loggedUser) {
+        loggedUser = null;
+        console.log("Logged out");
+    } else {
+        console.log("You are not logged in");        
+    }
+};
+export const changeName = () => {
+    console.log("Change the name associated with your account!");
+
+    const accountRef = validateUser();
+
+    console.log("Which name should we change your account to?");
+    accountRef.name = readline.question();
+    console.log(`We will address you as ${accountRef.name} from now on.`);
+};
+
+export const requestFunds = () => {
+    console.log("Requesting funds!");
+
+    const accountRef = validateUser();
+    console.log("From what account do you want to request funds?");
+    const targetaccountRef = getAccount();
+
+    console.log("Account found. How much money do you want to request?");
+
+    const amount = getIntInput();
+    const newFundRequests = [...targetaccountRef.fundRequests, {
+        requestee: targetaccountRef.id,
+        requester: accountRef.id,
+        amount,
+    }];
+    targetaccountRef.fundRequests = newFundRequests;
+
+    console.log(`Requesting ${amount}€ from the user with ID ${targetaccountRef.id}`);
+};
+
+export const fundRequests = () => {
+    console.log("Listing fund requests!");
+
+    const accountRef = validateUser();
+
+    console.log("Listing all the requests for your account!");
+
+    if (!accountRef.fundRequests.length) {
+        console.log("You have no pending fund requests.");
+        return;
+    }
+    accountRef.fundRequests.forEach((fundReq) => {
+        console.log(` - ${fundReq.amount} for the user ${fundReq.requestee}.`);
+    });
+};
+
+export const acceptFundRequest = () => {
+    console.log("Accepting fund requests!");
+    
+    const accountRef = validateUser();
+
+    console.log("Listing all the requests for your account!");
+
+    if (!accountRef.fundRequests.length) {
+        console.log("You have no pending fund requests.");
+        return;
+    }
+
+    accountRef.fundRequests.forEach((fundReq) => {
+        console.log(` - ${fundReq.amount} for the user ${fundReq.requester}.`);
+    });
+
+    console.log(`Your account balance is ${accountRef.balance}. 
+    Which fund request would you like to accept?`);
+
+    const whichToAccept = () => {
+        console.log("Enter the ID for the user whose fund request you wish to accept");
+        const targetId = getIntInput();
+        const selectedFundRequest = accountRef.fundRequests.find((fundReq) => fundReq.requester === targetId)
+
+        if (!selectedFundRequest) {
+            console.log("No such request.");
+            whichToAccept();
+        }
+        if (selectedFundRequest.amount > accountRef.balance) {
+            console.log("You do not have funds to accept this request.");
+            whichToAccept();
+        }
+        if (confirmation()) {
+            console.log(`Accepting fund request 
+                ${selectedFundRequest.amount}€ 
+                from the user ${selectedFundRequest.requester}.`);
+            console.log(`Transferring ${selectedFundRequest.amount}€ 
+                to account ID ${selectedFundRequest.requester}.`);
+
+            accountRef.balance -= selectedFundRequest.amount;
+            const targetAccount = allUsers.find((user) => (
+                user.id === selectedFundRequest.requester));
+            targetAccount.balance += selectedFundRequest.amount;
+            const newFundRequests = accountRef.fundRequests.filter((fundReq) => (
+                fundReq !== selectedFundRequest));
+
+            accountRef.fundRequests = newFundRequests;
+
+            console.log(`Your acccount balance is now ${accountRef.balance}€.`);
+        }
+    };
+
+    whichToAccept();
+};
+
+export const readUsersFromFile = () => {
+    try {
+        const data = fs.readFileSync("account_data.json", "utf8");
+        allUsers = JSON.parse(data);
+    } catch (e) {
+        console.log("No saved data found.");
+    }
+};
+
+export const saveUsersToFile = () => {
+    fs.writeFile("account_data.json", JSON.stringify(allUsers), "utf8", (err) => {
+        if (err) {
+            console.log("Could not save accounts to file!");
+        }
+    });
+};
